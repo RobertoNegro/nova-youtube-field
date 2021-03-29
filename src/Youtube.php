@@ -28,15 +28,7 @@ class Youtube extends Field
             $model->{$attribute} = $request[$requestAttribute];
         }
 
-        if (isset($this->fillCallback)) {
-            return call_user_func(
-                $this->fillCallback, $request, $model, $attribute, $requestAttribute
-            );
-        }
-
-        return $this->fillAttributeFromRequest(
-            $request, $requestAttribute, $model, $attribute
-        );
+        return parent::fillAttribute($request, $requestAttribute, $model, $attribute);
     }
 
     public static function parseYoutube($url)
