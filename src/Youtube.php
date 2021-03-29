@@ -14,11 +14,29 @@ class Youtube extends Field
      */
     public $component = 'nova-youtube-field';
 
-    protected function fillAttributeFromRequest(NovaRequest $request, $requestAttribute, $model, $attribute)
+    protected function fillAttribute(NovaRequest $request, $requestAttribute, $model, $attribute)
     {
         if ($request->exists($requestAttribute)) {
-            $model->{$attribute} = self::parseYoutube($request[$requestAttribute]) ?? $request[$requestAttribute];
+            if($json = json_decode($request[$requestAttribute])) {
+                foreach ($json as &$v) {
+                    $v = Youtube::parseYoutube($v) ?? $v;
+                }
+                $request[$requestAttribute] = json_encode($json);
+            } else {
+                $request[$requestAttribute] = self::parseYoutube($request[$requestAttribute]) ?? $request[$requestAttribute];
+            }
+            $model->{$attribute} = $request[$requestAttribute];
         }
+
+        if (isset($this->fillCallback)) {
+            return call_user_func(
+                $this->fillCallback, $request, $model, $attribute, $requestAttribute
+            );
+        }
+
+        return $this->fillAttributeFromRequest(
+            $request, $requestAttribute, $model, $attribute
+        );
     }
 
     public static function parseYoutube($url)
