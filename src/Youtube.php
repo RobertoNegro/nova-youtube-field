@@ -17,7 +17,11 @@ class Youtube extends Field
     protected function fillAttribute(NovaRequest $request, $requestAttribute, $model, $attribute)
     {
         if ($request->exists($requestAttribute)) {
-            if($json = json_decode($request[$requestAttribute])) {
+            $json = $request[$requestAttribute];
+            if(is_string($json)) {
+                $json = json_decode($json, true);
+            }
+            if(is_array($json)) {
                 foreach ($json as &$v) {
                     $v = Youtube::parseYoutube($v) ?? $v;
                 }
